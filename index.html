@@ -80,7 +80,7 @@ d3.tsv("data.tsv", function(error, data) {
   });
  
   data = data.filter(function(d,i){
-      return i % 50 === 0;
+      return i % 100 === 0;
   })
   
   data.sort(function(a, b) {
