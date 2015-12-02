@@ -29,7 +29,7 @@ body {
 }
 
 .focus circle {
-  stroke: steelblue;
+    stroke: steelblue;
 }
 
 </style>
@@ -37,6 +37,7 @@ body {
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
 
+var MOD = 50;
 var colors = ['red','blue','green']
 
 var margin = {top: 20, right: 50, bottom: 30, left: 50},
@@ -82,7 +83,7 @@ d3.tsv("data_new.tsv", function(error, data) {
   });
  
   var data = data.filter(function(d,i){
-      return (i % 20 === 0)
+      return (i % MOD === 0)
   })
 
   
@@ -130,6 +131,7 @@ d3.tsv("data_new.tsv", function(error, data) {
                   }
                   d3.select(this).style("stroke-width", "3px") 
                   focus.style("display", null); 
+                  d3.select("circle").style("stroke", colors[pathindex-1]).style("fill", colors[pathindex-1])
               })
               .on("mouseout", function() { 
                   d3.select(this).style("stroke-width", "1.5px") 
