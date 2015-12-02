@@ -29,7 +29,6 @@ body {
 }
 
 .focus circle {
-  fill: none;
   stroke: steelblue;
 }
 
@@ -37,6 +36,8 @@ body {
 <body>
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script>
+
+var colors = ['red','blue','green']
 
 var margin = {top: 20, right: 50, bottom: 30, left: 50},
     width = 960 - margin.left - margin.right,
@@ -68,20 +69,22 @@ var line = d3.svg.line()
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.tsv("data.tsv", function(error, data) {
+d3.tsv("data_new.tsv", function(error, data) {
   if (error) throw error;
 
   data.forEach(function(d,i) {
     d.date = parseDate(d.date);
     d.close = +d.close;
+    d.index = parseInt(d.index)
   });
  
-  data = data.filter(function(d,i){
-      return i % 100 === 0;
+  var data = data.filter(function(d,i){
+      return (i % 20 === 0)
   })
+
   
   data.sort(function(a, b) {
     return a.date - b.date;
@@ -105,19 +108,35 @@ d3.tsv("data.tsv", function(error, data) {
       .style("text-anchor", "end")
       .text("Price ($)");
 
-  svg.append("path")
-      .datum(data)
-      .attr("class", "line")
-      .attr("d", line)
-      .on("mouseover", function() {
-          d3.select(this).style("stroke-width", "3px") 
-          focus.style("display", null); 
-      })
-      .on("mouseout", function() { 
-          d3.select(this).style("stroke-width", "1.5px") 
-          focus.style("display", "none"); 
-      })
-      .on("mousemove", mousemove);
+ 
+      for (var ii=1;ii<4;ii++){
+          var dfiltered = data.filter(function(d,i){
+              return ((d.index === ii))
+          })
+          svg.append("path")
+              .datum(dfiltered)
+              .attr("class", "line d3-"+ ii)
+              .attr("d", line)
+              .style("stroke",colors[ii-1])
+              .on("mouseover", function(d) {
+                  var klass = d3.select(this).attr("class");
+                  var pathindex;
+                  if(klass.indexOf(1) >-1){
+                      pathindex = 1;
+                  } else if(klass.indexOf(2) >-1){
+                      pathindex = 2;
+                  } else {
+                      pathindex = 3;
+                  }
+                  d3.select(this).style("stroke-width", "3px") 
+                  focus.style("display", null); 
+              })
+              .on("mouseout", function() { 
+                  d3.select(this).style("stroke-width", "1.5px") 
+                  focus.style("display", "none"); 
+              })
+              .on("mousemove", mousemove);
+      }
 
   var focus = svg.append("g")
       .attr("class", "focus")
@@ -131,10 +150,25 @@ d3.tsv("data.tsv", function(error, data) {
       .attr("dy", ".35em");
 
   function mousemove() {
+      var klass = d3.select(this).attr("class");
+      var pathindex;
+      if(klass.indexOf(1) >-1){
+          pathindex = 1;
+      } else if(klass.indexOf(2) >-1){
+          pathindex = 2;
+      } else {
+          pathindex = 3;
+      }
+      
+      var dfiltered = data.filter(function(d,i){
+          return ((d.index === pathindex))
+      })
+      
+      
     var x0 = x.invert(d3.mouse(this)[0]),
-        i = bisectDate(data, x0, 1),
-        d0 = data[i - 1],
-        d1 = data[i],
+        i = bisectDate(dfiltered, x0, 1),
+        d0 = dfiltered[i - 1],
+        d1 = dfiltered[i],
         d = x0 - d0.date > d1.date - x0 ? d1 : d0;
     focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
     focus.select("text").text(formatCurrency(d.close));
