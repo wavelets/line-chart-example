@@ -1,0 +1,1 @@
+A [line chart](../3883245) with mouseover so that you can read the *y*-value based on the closest *x*-value. The *x*-value is found using d3.mouse and scale.invert. The *y*-value is then found by bisecting the data.# line-chart-example
